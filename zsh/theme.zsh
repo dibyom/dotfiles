@@ -1,1 +1,1 @@
-prompt skwp
+prompt dibyo2

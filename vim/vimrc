@@ -1,0 +1,261 @@
+" ====================== COPIED FROM ~/.yadr/vimrc ====================
+" Use Vim settings, rather then Vi settings (much better!).
+" This must be first, because it changes other options as a side effect.
+set nocompatible
+
+" ================ General Config ====================
+set number                      "Line numbers are good
+set backspace=indent,eol,start  "Allow backspace in insert mode
+set history=1000                "Store lots of :cmdline history
+set showcmd                     "Show incomplete cmds down the bottom
+set showmode                    "Show current mode down the bottom
+set gcr=a:blinkon0              "Disable cursor blink
+set visualbell                  "No sounds
+set autoread                    "Reload files changed outside vim
+set autowrite                   "AutoSave on :make, :GoBuild etc.
+set hlsearch                    " Highlight the search term
+set t_vb=
+" use » to mark Tabs and ° to mark trailing whitespace. This is a
+" non-obtrusive way to mark these special characters.
+set list listchars=tab:»\ ,trail:°
+set tabstop=2
+set shiftwidth=2
+set expandtab
+
+" This makes vim act like all other editors, buffers can
+" exist in the background without being in a window.
+" http://items.sjbach.com/319/configuring-vim-right
+set hidden
+
+"turn on syntax highlighting
+syntax on
+
+" Change leader to a comma because the backslash is too far away
+" That means all \x commands turn into ,x
+" The mapleader has to be set before vundle starts loading all
+" the plugins.
+let mapleader=","
+
+" ========================================
+" Vim plugin configuration
+" ========================================
+"
+" This file contains the list of plugin installed using vundle plugin manager.
+" Once you've updated the list of plugin, you can run vundle update by issuing
+" the command :BundleInstall from within vim or directly invoking it from the
+" command line with the following syntax:
+" vim --noplugin -u vim/vundles.vim -N "+set hidden" "+syntax on" +BundleClean! +BundleInstall +qall
+" Filetype off is required by vundle
+filetype off
+set rtp+=~/.config/nvim/bundle/Vundle.vim
+if isdirectory(expand('$HOME/.vim/bundle/Vundle.vim'))
+  call vundle#begin()
+  " Required
+  Plugin 'VundleVim/Vundle.vim'
+  " Install plugins that come from github.  Once Vundle is installed, these can be
+  " installed with :PluginInstall
+  " Bundle "gregsexton/gitv" "Gitk. No longer maintained
+  " Plugin 'tpope/vim-fugitive' "blame etc. didn't seem to work
+  " Plugin 'tpope/vim-git'
+  Plugin 'fatih/vim-go'
+  " Plugin 'sheerun/vim-polyglot'
+  " Plugin 'nelstrom/vim-markdown-preview'
+  Plugin 'airblade/vim-gitgutter'
+  Plugin 'scrooloose/nerdtree.git'
+  Plugin 'justinmk/vim-sneak' " s <ch> <ch> to search
+  Plugin 'vim-scripts/IndexedSearch'
+  "Plugin 'easymotion/vim-easymotion'
+  Plugin 'itchyny/lightline.vim'
+  Plugin 'delimitMate.vim'
+  "Plugin 'AndrewRadev/splitjoin.vim'
+  Plugin 'lifepillar/vim-solarized8'
+
+  "" TextObjects
+  "Plugin 'austintaylor/vim-indentobject'
+
+  Plugin 'scrooloose/nerdcommenter'
+  Plugin 'Valloric/MatchTagAlways'
+  "Plugin 'vim-scripts/netrw.vim'
+  "Plugin 'tpope/vim-sensible'
+  Plugin 'SirVer/ultisnips'
+  Plugin 'jlanzarotta/bufexplorer'
+  Plugin 'ctrlpvim/ctrlp.vim'
+  Plugin 'Syntastic'
+  ""https://github.com/christoomey/vim-tmux-navigator
+  Plugin 'christoomey/vim-tmux-navigator'
+
+" Provide many default snippets for a variety of snippets.
+" Uncomment and :PluginInstall to enable
+" Plugin 'honza/vim-snippets'
+
+  call vundle#end()
+else
+  echomsg 'Vundle is not installed. You can install Vundle from'
+      \ 'https://github.com/VundleVim/Vundle.vim'
+endif
+"Filetype plugin indent on is required by vundle
+filetype plugin indent on
+
+" Theme
+set background=light
+let g:solarized_termtrans=1
+let g:solarized_termcolors=256
+colorscheme solarized8
+" Display tabs and trailing spaces visually
+set list listchars=tab:\ \ ,trail:·
+
+" ================ Turn Off Swap Files ==============
+set noswapfile
+set nobackup
+set nowb
+
+" ================ Persistent Undo ==================
+" Keep undo history across sessions, by storing in file.
+" Only works all the time.
+if has('persistent_undo') && !isdirectory(expand('~').'/.vim/backups')
+  silent !mkdir ~/.vim/backups > /dev/null 2>&1
+  set undodir=~/.vim/backups
+  set undofile
+endif
+
+" work config "
+"======================"
+if filereadable(expand("$HOME/google.vim"))
+  " Load the default google configuration
+  source $HOME/google.vim
+endif
+
+" Old Google stuff
+" Syntastic recommended config from Github page
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 0
+let g:syntastic_check_on_wq = 0
+
+" Jump to closingParens
+nnoremap <leader>% :MtaJumpToOtherTag<cr>
+"
+" By default, it looks up man pages for the word under the cursor, which isn't
+" very useful, so we map it to something else.
+nnoremap <s-k> <CR>
+
+" Automatically change the working path to the path of the current file
+autocmd BufNewFile,BufEnter * silent! lcd %:p:h
+
+" ===============================
+" Plugin overrides
+" ===============================
+" deoplete.nvim Autocomplete
+let g:deoplete#enable_at_startup = 1
+
+" Configure CtrlP to use ag
+if executable('ag')
+  set grepprg=ag\ --nogroup\ --nocolor
+
+  " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
+  let g:ctrlp_user_command = '/usr/bin/ag %s -i --nocolor --nogroup --hidden
+    \ --ignore .git
+    \ --ignore .svn
+    \ --ignore .hg
+    \ --ignore .DS_Store
+    \ --ignore "**/*.pyc"
+    \ -g ""'
+
+  " ag is fast enough that CtrlP doesn't need to cache
+  let g:ctrlp_use_caching = 0
+endif
+
+" ================ vim-go config ==============
+"
+
+let g:go_def_mode = 'godef' " can also use guru,gopls -> gopls is erroring
+" Easily move in quickfix list
+map <C-n> :cnext<CR>
+map <C-m> :cprevious<CR>
+
+"<leader>a to close quickfix
+nnoremap <silent> <leader>a :cclose<CR>:lclose<CR>
+
+autocmd FileType go nmap <leader>r  <Plug>(go-run)
+autocmd FileType go nmap <leader>t  <Plug>(go-test)
+
+" run :GoBuild or :GoTestCompile based on the go file
+function! s:build_go_files()
+  let l:file = expand('%')
+  if l:file =~# '^\f\+_test\.go$'
+    call go#test#Test(0, 1)
+  elseif l:file =~# '^\f\+\.go$'
+    call go#cmd#Build(0)
+  endif
+endfunction
+
+autocmd FileType go nmap <leader>b :<C-u>call <SID>build_go_files()<CR>
+autocmd FileType go nmap <Leader>c <Plug>(go-coverage-toggle)
+
+let g:go_fmt_command = "goimports"
+
+" Show :GoInfo for funcs. Changes each 800ms
+let g:go_auto_type_info = 1
+
+" Umcomment in case 800ms for auto_type_info update is too long
+" set updatetime=100
+"
+" Auto highlight sameIds
+let g:go_auto_sameids = 1
+
+" JSON tags with camelCase instead of snake_case
+let g:go_addtags_transform = "camelcase"
+
+" BEautify experiments
+" Turn these off if vim is slow
+" From https://github.com/fatih/vim-go/wiki/Tutorial#beautify-it
+let g:go_highlight_types = 1
+let g:go_highlight_fields = 1
+"let g:go_highlight_functions = 1
+let g:go_highlight_function_calls = 1
+let g:go_highlight_operators = 1
+let g:go_highlight_extra_types = 1
+let g:go_highlight_build_constraints = 1
+let g:go_highlight_generate_tags = 1
+
+" ================ Go Linter ==============
+let g:go_metalinter_enabled = ['vet', 'golint', 'errcheck']
+let g:go_metalinter_autosave = 1
+
+" ================ Make ycm and ultisnips work well  ==============
+
+let g:UltiSnipsExpandTrigger       ="<c-tab>"
+let g:UltiSnipsJumpForwardTrigger  = "<tab>"
+let g:UltiSnipsJumpBackwardTrigger = "<s-tab>"
+
+" Enable tabbing through list of results
+function! g:UltiSnips_Complete()
+    call UltiSnips#ExpandSnippet()
+    if g:ulti_expand_res == 0
+        if pumvisible()
+            return "\<C-n>"
+        else
+            call UltiSnips#JumpForwards()
+            if g:ulti_jump_forwards_res == 0
+               return "\<TAB>"
+            endif
+        endif
+    endif
+    return ""
+endfunction
+
+au InsertEnter * exec "inoremap <silent> " . g:UltiSnipsExpandTrigger . " <C-R>=g:UltiSnips_Complete()<cr>"
+
+" Expand snippet or return
+let g:ulti_expand_res = 0
+function! Ulti_ExpandOrEnter()
+    call UltiSnips#ExpandSnippet()
+    if g:ulti_expand_res
+        return ''
+    else
+        return "\<return>"
+endfunction
+
+" Set <space> as primary trigger
+inoremap <return> <C-R>=Ulti_ExpandOrEnter()<CR>
+

@@ -106,6 +106,7 @@
   whitespace = nowarn
 [branch]
   autosetupmerge = true
+	autosetuprebase = always
 [push]
   # 'git push' will push the current branch to its tracking branch
   # the usual default is to push all branches
@@ -127,3 +128,12 @@
   enabled = true
 [include]
   path = .gitconfig.user
+[filter "lfs"]
+	clean = git-lfs clean %f
+	smudge = git-lfs smudge %f
+	required = true
+[user]
+	name = Dibyo Mukherjee
+	email = dibyo@google.com
+[pull]
+	rebase = true

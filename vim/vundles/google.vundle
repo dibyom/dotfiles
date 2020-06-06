@@ -1,0 +1,15 @@
+  Plugin 'scrooloose/nerdcommenter'
+  Plugin 'Valloric/MatchTagAlways'
+  Plugin 'vim-scripts/netrw.vim'
+  Plugin 'tpope/vim-sensible'
+  Plugin 'SirVer/ultisnips'
+  Plugin 'jlanzarotta/bufexplorer'
+  Plugin 'ctrlpvim/ctrlp.vim'
+  Plugin 'Syntastic'
+  "https://github.com/christoomey/vim-tmux-navigator
+  Plugin 'christoomey/vim-tmux-navigator'
+
+" Provide many default snippets for a variety of snippets.
+" Uncomment and :PluginInstall to enable
+" Plugin 'honza/vim-snippets'
+
