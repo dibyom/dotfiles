@@ -23,7 +23,6 @@ if [ -f /opt/homebrew-cask/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/com
   source /opt/homebrew-cask/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc
 fi
 
-source /etc/bash_completion.d/g4d
 
 alias k='kubectl'
 
