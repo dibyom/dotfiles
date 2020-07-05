@@ -56,7 +56,7 @@ set hidden
 " jump up or down to a particular line, by {count}k to go up or {count}j to go
 " down.
 set relativenumber
-
+set clipboard=unnamed " yank to OSX clipboard
 " This setting makes search case-insensitive when all characters in the string
 " being searched are lowercase. However, the search becomes case-sensitive if
 " it contains any capital letters. This makes searching more convenient.
@@ -76,6 +76,16 @@ let mapleader=","
 set noswapfile
 set nobackup
 set nowb
+
+" ============== General config for coc ==============
+" Better display for messages
+set cmdheight=2
+" Smaller updatetime for CursorHold & CursorHoldI
+set updatetime=300
+" don't give |ins-completion-menu| messages.
+set shortmess+=c
+" always show signcolumns
+set signcolumn=yes
 
 " ================ Persistent Undo ==================
 " Keep undo history across sessions, by storing in file.
@@ -138,6 +148,7 @@ if isdirectory(expand('$HOME/.config/nvim/bundle/Vundle.vim'))
   ""https://github.com/christoomey/vim-tmux-navigator
   Plugin 'christoomey/vim-tmux-navigator'
 
+  Plugin 'neoclide/coc.nvim', {'branch': 'release'}
 " Provide many default snippets for a variety of snippets.
 " Uncomment and :PluginInstall to enable
 " Plugin 'honza/vim-snippets'
@@ -198,7 +209,7 @@ if executable('ag')
   set grepprg=ag\ --nogroup\ --nocolor
 
   " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
-  let g:ctrlp_user_command = '/usr/bin/ag %s -i --nocolor --nogroup --hidden
+  let g:ctrlp_user_command = '/usr/local/bin/ag %s -i --nocolor --nogroup --hidden
     \ --ignore .git
     \ --ignore .svn
     \ --ignore .hg
@@ -210,13 +221,103 @@ if executable('ag')
   let g:ctrlp_use_caching = 0
 endif
 
+" =============== coc =======================
+"
+" Use tab for trigger completion with characters ahead and navigate.
+" Use command ':verbose imap <tab>' to make sure tab is not mapped by other plugin.
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+" Use <c-space> to trigger completion.
+inoremap <silent><expr> <c-space> coc#refresh()
+
+" Use `[c` and `]c` to navigate diagnostics
+nmap <silent> [c <Plug>(coc-diagnostic-prev)
+nmap <silent> ]c <Plug>(coc-diagnostic-next)
+
+" Remap keys for gotos
+nmap <silent> gd <Plug>(coc-definition)
+nmap <sient> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+" Use U to show documentation in preview window
+nnoremap <silent> U :call <SID>show_documentation()<CR>
+	
+function! s:show_documentation()	
+  if (index(['vim','help'], &filetype) >= 0)	
+    execute 'h '.expand('<cword>')	
+  else	
+    call CocAction('doHover')	
+  endif	
+endfunction	
+"
+" Highlight the symbol and its references when holding the cursor.	
+autocmd CursorHold * silent call CocActionAsync('highlight')	
+" Symbol renaming.
+" Remap for rename current word
+nmap <leader>rn <Plug>(coc-rename)
+
+" Remap for format selected region
+vmap <leader>f  <Plug>(coc-format-selected)
+nmap <leader>f  <Plug>(coc-format-selected)
+		
+" Add `:Format` command to format current buffer.	
+command! -nargs=0 Format :call CocAction('format')	
+" Add `:Fold` command to fold current buffer.	
+command! -nargs=? Fold :call     CocAction('fold', <f-args>)	
+" Add `:OR` command for organize imports of the current buffer.	
+command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')	
+
+  let g:lightline = {
+	\ 'active': {
+	\   'left': [ [ 'mode', 'paste' ],
+	\             [ 'cocstatus', 'readonly', 'filename', 'modified' ] ]
+	\ },
+	\ 'component_function': {
+	\   'cocstatus': 'coc#status'
+	\ },
+	\ }
+
+  " Use auocmd to force lightline update.
+  autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
+<
+" Mappings for CoCList	
+" Show all diagnostics.	
+nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>	
+" Manage extensions.	
+nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>	
+" Show commands.	
+nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>	
+" Find symbol of current document.	
+nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>	
+" Search workspace symbols.	
+nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>	
+" Do default action for next item.	
+nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>	
+" Do default action for previous item.	
+nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>	
+" Resume latest coc list.	
+nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
+
 " ================ vim-go config ==============
 "
-let g:go_def_mode = 'godef' " can also use guru,gopls -> gopls is erroring
-" Easily move in quickfix list
-map <C-n> :cnext<CR>
-map <C-m> :cprevious<CR>
 
+" Use coc/gopls 
+
+let g:go_fmt_autosave = 0
+let g:go_mod_fmt_autosave = 0
+let g:go_def_mapping_enabled = 0
+let g:go_def_mode = 'godef' " can also use guru,gopls -> gopls is erroring
+"
 "<leader>a to close quickfix
 nnoremap <silent> <leader>a :cclose<CR>:lclose<CR>
 
@@ -239,13 +340,13 @@ autocmd FileType go nmap <Leader>c <Plug>(go-coverage-toggle)
 let g:go_fmt_command = "goimports"
 
 " Show :GoInfo for funcs. Changes each 800ms
-let g:go_auto_type_info = 1
+"let g:go_auto_type_info = 1
 
 " Umcomment in case 800ms for auto_type_info update is too long
 " set updatetime=100
 "
 " Auto highlight sameIds
-let g:go_auto_sameids = 1
+"let g:go_auto_sameids = 1
 
 " JSON tags with camelCase instead of snake_case
 let g:go_addtags_transform = "camelcase"
@@ -264,7 +365,7 @@ let g:go_highlight_generate_tags = 1
 
 " ================ Go Linter ==============
 let g:go_metalinter_enabled = ['vet', 'golint', 'errcheck']
-let g:go_metalinter_autosave = 1
+let g:go_metalinter_autosave = 0
 
 " ================ Make ycm and ultisnips work well  ==============
 
