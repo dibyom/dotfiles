@@ -5,6 +5,11 @@ set nocompatible
 
 "turn on syntax highlighting
 syntax on
+
+" Use jj to go back to normal mode
+" TODO: Do this for non normal modes too?
+inoremap jj  <Esc>
+
 "
 " Try to prevent bad habits like using the arrow keys for movement. This is
 " not the only possible bad habit. For example, holding down the h/j/k/l keys
@@ -145,7 +150,6 @@ if isdirectory(expand('$HOME/.config/nvim/bundle/Vundle.vim'))
   Plugin 'jlanzarotta/bufexplorer'
   Plugin 'ctrlpvim/ctrlp.vim'
   Plugin 'Syntastic'
-  ""https://github.com/christoomey/vim-tmux-navigator
   Plugin 'christoomey/vim-tmux-navigator'
 
   Plugin 'neoclide/coc.nvim', {'branch': 'release'}
@@ -239,28 +243,31 @@ endfunction
 " Use <c-space> to trigger completion.
 inoremap <silent><expr> <c-space> coc#refresh()
 
-" Use `[c` and `]c` to navigate diagnostics
-nmap <silent> [c <Plug>(coc-diagnostic-prev)
-nmap <silent> ]c <Plug>(coc-diagnostic-next)
+" Use `[g` and `]g` to navigate diagnostics
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
 
 " Remap keys for gotos
 nmap <silent> gd <Plug>(coc-definition)
-nmap <sient> gy <Plug>(coc-type-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 
 " Use U to show documentation in preview window
-nnoremap <silent> U :call <SID>show_documentation()<CR>
+nnoremap <silent> K :call <SID>show_documentation()<CR>
 	
-function! s:show_documentation()	
-  if (index(['vim','help'], &filetype) >= 0)	
-    execute 'h '.expand('<cword>')	
-  else	
-    call CocAction('doHover')	
-  endif	
-endfunction	
-"
+function! s:show_documentation()
+  if (index(['vim','help'], &filetype) >= 0)
+    execute 'h '.expand('<cword>')
+  elseif (coc#rpc#ready())
+    call CocActionAsync('doHover')
+  else
+    execute '!' . &keywordprg . " " . expand('<cword>')
+  endif
+endfunction
+
 " Highlight the symbol and its references when holding the cursor.	
+" Set updatetime to 300ms
 autocmd CursorHold * silent call CocActionAsync('highlight')	
 " Symbol renaming.
 " Remap for rename current word
@@ -312,7 +319,6 @@ nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
 "
 
 " Use coc/gopls 
-
 let g:go_fmt_autosave = 0
 let g:go_mod_fmt_autosave = 0
 let g:go_def_mapping_enabled = 0
@@ -342,9 +348,6 @@ let g:go_fmt_command = "goimports"
 " Show :GoInfo for funcs. Changes each 800ms
 "let g:go_auto_type_info = 1
 
-" Umcomment in case 800ms for auto_type_info update is too long
-" set updatetime=100
-"
 " Auto highlight sameIds
 "let g:go_auto_sameids = 1
 
